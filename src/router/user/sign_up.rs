@@ -71,7 +71,7 @@ pub(super) const SIGN_UP_KEY: &[u8] = b"MYSTU_SIGN_UP_KEY";
 async fn sql_sign_up<'a, T>(
     pool: &Pool<Postgres>,
     user: BaseUser<T>,
-) -> std::result::Result<i8, sqlx::Error>
+) -> std::result::Result<i32, sqlx::Error>
 where
     T: sqlx::Encode<'a, Postgres> + sqlx::Type<Postgres> + Sync + Send + 'a,
 {
@@ -79,9 +79,9 @@ where
         "WITH ins AS ( \
                 INSERT INTO users (email, username, password) VALUES ($1, $2, $3) \
                 ON CONFLICT (username) DO NOTHING \
-                RETURNING '1' AS res\
+                RETURNING 1 AS res\
             ) \
-            SELECT COALESCE((SELECT res FROM ins), '-1')",
+            SELECT COALESCE((SELECT res FROM ins), -1)",
     )
     .bind(user.email)
     .bind(user.username)

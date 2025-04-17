@@ -42,7 +42,6 @@ pub(super) async fn refresh(req: HttpRequest) -> Result<HttpResponse, crate::Res
         false => refresh_token,
     };
     MyPool::redis_get_del::<_, Option<u8>>(status)
-        .await
         .map_err(|e| tracing::debug!("{:#?}", e))?
         .ok_or(())?;
 
@@ -57,9 +56,7 @@ pub(super) async fn refresh(req: HttpRequest) -> Result<HttpResponse, crate::Res
         true => &refresh_token[len - 16..],
         false => &refresh_token,
     };
-    MyPool::redis_set_ex(status, 0u8, REFRESH_DURATION)
-        .await
-        .map_err(|e| tracing::debug!("{:#?}", e))?;
+    MyPool::redis_set_ex(status, 0u8, REFRESH_DURATION).map_err(|e| tracing::debug!("{:#?}", e))?;
 
     // 返回长短token
     Ok(res.json(Token {

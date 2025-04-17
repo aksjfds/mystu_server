@@ -1,5 +1,4 @@
 use glacier::prelude::*;
-use redis::AsyncCommands;
 
 use crate::{ResErr, TOO_MANY_REQUEST, sql::MyPool};
 
@@ -29,10 +28,12 @@ impl IpLogger {
         func_name: &str,
         seconds: u64,
     ) -> Result<HttpRequest, crate::ResErr> {
+        use redis::Commands;
+
         let key = format!("{}: {}", req.ip, func_name);
 
-        let mut con = MyPool::redis_conn().await.unwrap();
-        let is_expire: Option<u8> = con.get(&key).await.unwrap();
+        let mut con = MyPool::redis_conn().unwrap();
+        let is_expire: Option<u8> = con.get(&key).unwrap();
         match is_expire {
             Some(_) => {
                 tracing::info!("this req is being limited: {:#?}", key);
@@ -43,7 +44,7 @@ impl IpLogger {
                 Err(ResErr::Detail(TOO_MANY_REQUEST))
             }
             None => {
-                let _: () = con.set_ex(key, 0u8, seconds).await.unwrap();
+                let _: () = con.set_ex(key, 0u8, seconds).unwrap();
                 Ok(req)
             }
         }

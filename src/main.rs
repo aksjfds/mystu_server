@@ -1,9 +1,6 @@
-use std::thread;
-
 use glacier::prelude::*;
 use mystu_server::middles::IpLogger;
 use mystu_server::prelude::*;
-use mystu_server::tool::*;
 
 const VISIT_LIMIT: u64 = 1; // 两次请求间的最小时间间隔 (秒)
 const ERROR_LIMIT: u8 = 10; // 可允许的异常请求次数
@@ -48,17 +45,13 @@ async fn router(mut req: HttpRequest) -> HttpResponse {
 
 #[tokio::main]
 async fn main() {
-    Logging::start("debug", None);
+    mystu_server::log::Logging::start("debug", None);
 
     let glacier = GlacierBuilder::bind(("0.0.0.0", 443))
-        .tls(
-            "/home/aksjfds/codes/mystu_server/cert.pem",
-            "/home/aksjfds/codes/mystu_server/key.pem",
-        )
         .server(router)
         .build()
         .await;
     glacier.run().await.unwrap();
 
-    thread::park();
+    std::thread::park();
 }

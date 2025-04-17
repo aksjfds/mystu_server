@@ -41,3 +41,18 @@ pub struct GetPostParam {
     pub last_id: i32,
     pub limit: i16,
 }
+
+#[tokio::test]
+async fn test() {
+    let pool = sqlx::postgres::PgPoolOptions::new()
+            .max_connections(5)
+            .connect_lazy("postgresql://postgres.yihtetapipznguhpldpj:qi7lAEMRggQkLvt2@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres")
+            .unwrap();
+
+    let a: Vec<Post> = sqlx::query_as("SELECT * FROM posts")
+        .fetch_all(&pool)
+        .await
+        .unwrap();
+
+    println!("{:#?}", a);
+}

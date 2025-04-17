@@ -1,5 +1,4 @@
 use glacier::prelude::*;
-
 use serde::{Deserialize, Serialize};
 
 mod login;
@@ -15,10 +14,10 @@ use verify_email::verify_email;
 use crate::middles::{get, post};
 pub async fn route(mut req: HttpRequest) -> Result<HttpResponse, crate::ResErr> {
     match req.next_route().as_deref() {
-        Some("/login") => req.filter(post)?.async_apply(login).await,
-        Some("/sign_up") => req.filter(post)?.async_apply(sign_up).await,
-        Some("/refresh") => req.filter(get)?.async_apply(refresh).await,
-        Some("/verify_email") => req.filter(get)?.async_apply(verify_email).await,
+        Some("/login") => req.filter_with(post)?.async_apply(login).await,
+        Some("/sign_up") => req.filter_with(post)?.async_apply(sign_up).await,
+        Some("/refresh") => req.filter_with(get)?.async_apply(refresh).await,
+        Some("/verify_email") => req.filter_with(get)?.async_apply(verify_email).await,
         _ => Ok(HttpResponse::Ok().plain("404")),
     }
 }
