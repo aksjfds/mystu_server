@@ -48,6 +48,7 @@ async fn main() {
     mystu_server::log::Logging::start("debug", None);
 
     let glacier = GlacierBuilder::bind(("0.0.0.0", 443))
+        .tls("./cert.pem", "./key.pem")
         .server(router)
         .build()
         .await;
